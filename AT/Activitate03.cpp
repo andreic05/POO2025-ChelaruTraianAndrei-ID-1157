@@ -143,6 +143,25 @@ public:
 		if (this->nume != nullptr) delete[] this->nume;
 		if (this->greutatiSeminte != nullptr) delete[] this->greutatiSeminte;
 	}
+
+	void operator+=(float g) {
+		this->greutate += g;
+	}
+
+	//comparatie intre 2 obiecte dupa un atribut
+	bool operator>(Fruct& altul) {
+		if (this->greutate > altul.greutate) return true;
+		return false;
+	}
+
+	bool operator!() {
+		return this->greutate != 0;
+	}
+
+	//operaturul functie
+	float operator()(int pozitie) {
+		return this->getGreutateSamanta(pozitie);
+	}
 };
 
 int Fruct::numarFructe = 0;
