@@ -99,12 +99,19 @@ public:
 		cout << endl << "Productie Anuala: " << productieAnuala << " litrii";
 		cout << endl << "Numar suprafete cultivate: " << nrSuprafete;
 		if (nrSuprafete > 0) {
-			cout << endl << "Dimensiuni suprafete cultivate: [";
-			for (int i = 0; i < nrSuprafete - 1; i++) {
-				cout << dimSuprafeteCultivate[i] << ", ";
+			cout << endl << "Dimensiuni suprafete cultivate: [" << dimSuprafeteCultivate[0];
+			for (int i = 1; i < nrSuprafete - 1; i++) {
+				cout << ", " << dimSuprafeteCultivate[i];
 			}
 
-			cout << dimSuprafeteCultivate[nrSuprafete - 1] << "]" << endl;
+			if (nrSuprafete > 1) {
+				cout << dimSuprafeteCultivate[nrSuprafete - 1] << "]" << endl;
+			}
+			else {
+				cout << "]" << endl;
+			}
+			
+			
 		}
 		else {
 			cout << endl << "Specia nu a fost cultivata" << endl;
@@ -113,36 +120,36 @@ public:
 
 	}
 
-	static void comparareSiAfisareProductie(VitaDeVie* v1, VitaDeVie* v2) {
-		if (v1->nrSuprafete == 0 || v2->nrSuprafete == 0) {
+	static void comparareSiAfisareProductie(VitaDeVie& v1, VitaDeVie& v2) {
+		if (v1.nrSuprafete == 0 || v2.nrSuprafete == 0) {
 			cout << endl << "Speciile nu pot fi comparate - date insuficiente";
 			return;
 		}
 
 		double supTotala1 = 0;
-		for (int i = 0; i < v1->nrSuprafete; i++) {
-			supTotala1 += v2->dimSuprafeteCultivate[i];
+		for (int i = 0; i < v1.nrSuprafete; i++) {
+			supTotala1 += v2.dimSuprafeteCultivate[i];
 		}
 		double supTotala2 = 0;
-		for (int i = 0; i < v1->nrSuprafete; i++) {
-			supTotala2 += v2->dimSuprafeteCultivate[i];
+		for (int i = 0; i < v1.nrSuprafete; i++) {
+			supTotala2 += v2.dimSuprafeteCultivate[i];
 		}
 
-		double indice1 = v1->productieAnuala / supTotala1;
-		double indice2 = v2->productieAnuala / supTotala2;
+		double indice1 = v1.productieAnuala / supTotala1;
+		double indice2 = v2.productieAnuala / supTotala2;
 
 		if (indice1 > indice2) {
-			cout << endl << "Specia " << v1->specie << " produce mai mult decat specia " << v2->specie << ", cu un indice de productivitate de "
-				<< indice1 << " fata de " << indice2 << " pentru specia " << v2->specie << ".";
+			cout << endl << "Specia " << v1.specie << " produce mai mult decat specia " << v2.specie << ", cu un indice de productivitate de "
+				<< indice1 << " fata de " << indice2 << " pentru specia " << v2.specie << ".";
 		}
 
 		if (indice2 > indice1) {
-			cout << endl << "Specia " << v2->specie << " produce mai mult decat specia " << v1->specie << ", cu un indice de productivitate de "
-				<< indice2 << " fata de " << indice1 << " pentru specia " << v1->specie << ".";
+			cout << endl << "Specia " << v2.specie << " produce mai mult decat specia " << v1.specie << ", cu un indice de productivitate de "
+				<< indice2 << " fata de " << indice1 << " pentru specia " << v1.specie << ".";
 		}
 
 		if (indice1 == indice2) {
-			cout << endl << "Speciile " << v1->specie << " si " << v2->specie << " au productivitati egale, cu indicele de productivitate egal cu " << indice1 << ".";
+			cout << endl << "Speciile " << v1.specie << " si " << v2.specie << " au productivitati egale, cu indicele de productivitate egal cu " << indice1 << ".";
 		}
 
 		cout << endl;
@@ -226,14 +233,14 @@ public:
 			return true;
 		}
 		
-		double* rezultat = new double[this->nrSuprafete - 1];
-		for (int i = 0; i < index; i++) {
-			rezultat[i] = this->dimSuprafeteCultivate[i];
+		double* rezultat = new double[--(this->nrSuprafete)];
+		int k = 0;
+		for (int i = 0; i < this->nrSuprafete + 1; i++) {
+			if (i != index) {
+				rezultat[k++] = this->dimSuprafeteCultivate[i];
+			}
 		}
-		for (int i = index; i < this->nrSuprafete - 1; i++) {
-			rezultat[i] = this->dimSuprafeteCultivate[i + 1];
-		}
-		this->nrSuprafete--;
+		
 		delete[] this->dimSuprafeteCultivate;
 		this->dimSuprafeteCultivate = rezultat;
 
@@ -301,28 +308,40 @@ public:
 		this->tarie = validareTarie(0);
 	}
 
-	Vin(char* soi, string marca, int anProductie) :id(++nrVinuri) {
+	Vin(const char* soi, string marca, int anProductie) :id(++nrVinuri) {
 		this->soi = validareSoi(soi);
 		this->marca = validareMarca(marca);
 		this->anProductie = validareAnProductie(anProductie);
 		this->tarie = validareTarie(0);
 	}
 
-	Vin(char* soi, string marca, int anProductie, float tarie) :id(++nrVinuri) {
+	Vin(const char* soi, string marca, int anProductie, float tarie) :id(++nrVinuri) {
 		this->soi = validareSoi(soi);
 		this->marca = validareMarca(marca);
 		this->anProductie = validareAnProductie(anProductie);
 		this->tarie = validareTarie(tarie);
 	}
 
-	/*
-	const int id;
-	char* soi;
-	string marca;
-	int anProductie;
-	float tarie;
-	static int nrVinuri;
-	*/
+	Vin(const Vin& vin) :id(++nrVinuri) {
+		this->soi = validareSoi(vin.soi);
+		this->marca = validareMarca(vin.marca);
+		this->anProductie = validareAnProductie(vin.anProductie);
+		this->tarie = validareTarie(vin.tarie);
+	}
+
+	Vin& operator=(const Vin& vin) {
+		if (this->soi != nullptr) delete[] this->soi;
+		this->soi = validareSoi(vin.soi);
+		this->marca = validareMarca(vin.marca);
+		this->anProductie = validareAnProductie(vin.anProductie);
+		this->tarie = validareTarie(vin.tarie);
+
+		return *this;
+	}
+
+	~Vin() {
+		delete[] this->soi;
+	}
 
 	int getId() {
 		return this->id;
@@ -371,21 +390,135 @@ public:
 		return nrVinuri;
 	}
 
+	friend ostream& operator<<(ostream& out, const Vin& vin) {
+		out << endl << "Soi: " << vin.soi << endl << "Marca: " << vin.marca << endl << "An productie: "
+			<< vin.anProductie << endl << "Tarie: " << vin.tarie << endl;
+		return out;
+	}
+
 };
 
 
 class Crama {
-public:
+private:
 	const int id;
 	char* denumire;
 	const int capacitateMaxima;
-	Vin* vinuri;
-	int* nrVin;
+	int nrVinuri;
+	Vin** vinuri;
+	int* cantitateVin;
 	static int nrCrame;
+
+	static char* validareDenumire(const char* denumire) {
+		char* rezultat;
+		if (denumire == nullptr || strlen(denumire) == 0) {
+			rezultat = new char[strlen("Nespecificat") + 1];
+			strcpy_s(rezultat, strlen("Nespecificat") + 1, "Nespecificat");
+		}
+		else {
+			rezultat = new char[strlen(denumire) + 1];
+			strcpy_s(rezultat, strlen(denumire) + 1, denumire);
+		}
+
+		return rezultat;
+	}
+
+	static int validareCapacitate(int cap) {
+		if (cap < 0) return 0;
+		return cap;
+	}
+
+	static int validareNrVinuri(int nrVinuri) {
+		if (nrVinuri < 0) throw "Numar Vinuri nu poate fi mai mic decat 0";
+
+		return nrVinuri;
+	}
+
+	static int* validareCantVin(int n, int* cantitati) {
+		int* rezultat = new int[n];
+		for (int i = 0; i < n; i++) {
+			if (cantitati[i] < 0) rezultat[i] = 0;
+			else rezultat[i] = cantitati[i];
+		}
+
+		return rezultat;
+	}
+
+	int cantitateTotala() {
+		int sum = 0;
+		for (int i = 0; i < this->nrVinuri; i++) {
+			sum += this->cantitateVin[i];
+		}
+
+		return sum;
+	}
+
+public:
+
+	Crama() :id(++nrCrame), capacitateMaxima(validareCapacitate(0)) {
+		this->denumire = validareDenumire(nullptr);
+		this->nrVinuri = 0;
+		this->vinuri = nullptr;
+		this->cantitateVin = nullptr;
+	}
+
+	Crama(const char* denumire, int capacitateMaxima) :id(++nrCrame), capacitateMaxima(validareCapacitate(capacitateMaxima)) {
+		this->denumire = validareDenumire(denumire);
+		this->nrVinuri = 0;
+		this->vinuri = nullptr;
+		this->cantitateVin = nullptr;
+	}
+
+	Crama(const char* denumire, int capacitateMaxima, int nrVinuri, Vin** vinuri, int* cantitateVin) :id(++nrCrame), capacitateMaxima(validareCapacitate(capacitateMaxima)) {
+		this->denumire = validareDenumire(denumire);
+		this->nrVinuri = validareNrVinuri(nrVinuri);
+		if (nrVinuri > 0) {
+			this->cantitateVin = validareCantVin(this->nrVinuri, cantitateVin);
+			if (this->cantitateTotala() > this->capacitateMaxima) {
+				delete[] this->cantitateVin;
+				throw ("Crama nu poate depozita mai mult vin decat capacitatea maxima");
+			}
+				
+			this->vinuri = new Vin*[this->nrVinuri];
+			for (int i = 0; i < this->nrVinuri; i++) {
+				this->vinuri[i] = vinuri[i];
+			}
+		}
+		else
+		{
+			this->cantitateVin = nullptr;
+			this->vinuri = nullptr;
+		}
+		
+	}
+
+	~Crama() {
+		delete[] this->denumire;
+		delete[] this->vinuri;
+		delete[] this->cantitateVin;
+	}
+
+	friend ostream& operator<<(ostream& out, const Crama& crama) {
+		out << endl << "Id: " << crama.id << endl << "Denumire: " << crama.denumire << endl << "Capacitate Maxima: " << crama.capacitateMaxima
+			<< endl << "Tipuri vin: " << crama.nrVinuri;
+		if (crama.nrVinuri > 0) {
+			out << endl << "Vinuri si cantitati: [" << crama.cantitateVin[0] << " X " << *(crama.vinuri[0]);
+			for (int i = 1; i < crama.nrVinuri; i++) {
+				out << endl << crama.cantitateVin[i] << " X " << *(crama.vinuri[i]);
+			}
+
+			
+			out << "]" << endl;
+		}
+
+		return out;
+	}
+
 };
 
 int VitaDeVie::nrViteDeVie = 0;
 int Vin::nrVinuri = 0;
+int Crama::nrCrame = 0;
 
 void main() {
 	VitaDeVie* vita1 = new VitaDeVie();
@@ -402,7 +535,7 @@ void main() {
 	delete[] dimSup;
 	vita4->afisare();
 
-	VitaDeVie::comparareSiAfisareProductie(vita3, vita4);
+	VitaDeVie::comparareSiAfisareProductie(*vita3, *vita4);
 
 	cout << endl << "Getteri si Setteri Vita de Vie:";
 	char* specie = vita3->getSpecie();
@@ -436,4 +569,30 @@ void main() {
 	delete vita2;
 	delete vita3;
 	delete vita4;
+
+	Vin vin1;
+	Vin vin2("Soi1", "Marca1", 2018);
+	Vin vin3("Soi2", "Marca2", 2022, 12);
+
+	cout << vin1 << vin2 << vin3;
+
+	Crama crama1;
+	Crama crama2("Crama1", 20);
+	Crama* crama3 = nullptr;
+
+	Vin** vinuri = new Vin*[3] {&vin1, & vin2, & vin3};
+	int* cantitati = new int[3] {5, 6, 7};
+	try {
+		crama3 = new Crama("Crama2", 100, 3, vinuri, cantitati);
+	}
+	catch (const string e) {
+		cout << endl << e;
+	}
+
+	delete[] vinuri;
+	delete[] cantitati;
+
+	cout << crama1 << crama2 << *crama3;
+
+	if (crama3 != nullptr) delete crama3;
 }
