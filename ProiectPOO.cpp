@@ -261,12 +261,10 @@ public:
 
 class Vin {
 private:
-	const int id;
 	char* soi;
 	string marca;
 	int anProductie;
-	float tarie;
-	static int nrVinuri;
+	const float tarie;
 
 	static char* validareSoi(const char* soi) {
 		char* rezultat;
@@ -301,32 +299,28 @@ private:
 	}
 
 public:
-	Vin() :id(++nrVinuri) {
+	Vin() :tarie(validareTarie(0)) {
 		this->soi = validareSoi(nullptr);
 		this->marca = validareMarca("");
 		this->anProductie = validareAnProductie(3000);
-		this->tarie = validareTarie(0);
 	}
 
-	Vin(const char* soi, string marca, int anProductie) :id(++nrVinuri) {
+	Vin(const char* soi, string marca, int anProductie) :tarie(validareTarie(0)) {
 		this->soi = validareSoi(soi);
 		this->marca = validareMarca(marca);
 		this->anProductie = validareAnProductie(anProductie);
-		this->tarie = validareTarie(0);
 	}
 
-	Vin(const char* soi, string marca, int anProductie, float tarie) :id(++nrVinuri) {
+	Vin(const char* soi, string marca, int anProductie, float tarie) :tarie(validareTarie(tarie)) {
 		this->soi = validareSoi(soi);
 		this->marca = validareMarca(marca);
 		this->anProductie = validareAnProductie(anProductie);
-		this->tarie = validareTarie(tarie);
 	}
 
-	Vin(const Vin& vin) :id(++nrVinuri) {
+	Vin(const Vin& vin) :tarie(validareTarie(vin.tarie)) {
 		this->soi = validareSoi(vin.soi);
 		this->marca = validareMarca(vin.marca);
 		this->anProductie = validareAnProductie(vin.anProductie);
-		this->tarie = validareTarie(vin.tarie);
 	}
 
 	Vin& operator=(const Vin& vin) {
@@ -334,17 +328,12 @@ public:
 		this->soi = validareSoi(vin.soi);
 		this->marca = validareMarca(vin.marca);
 		this->anProductie = validareAnProductie(vin.anProductie);
-		this->tarie = validareTarie(vin.tarie);
 
 		return *this;
 	}
 
 	~Vin() {
 		delete[] this->soi;
-	}
-
-	int getId() {
-		return this->id;
 	}
 
 	char* getSoi() {
@@ -382,18 +371,19 @@ public:
 		return this->tarie;
 	}
 
-	void setTarie(float tarie) {
-		this->tarie = validareAnProductie(tarie);
-	}
-
-	static int getNrVinuri() {
-		return nrVinuri;
-	}
-
 	friend ostream& operator<<(ostream& out, const Vin& vin) {
 		out << endl << "Soi: " << vin.soi << endl << "Marca: " << vin.marca << endl << "An productie: "
 			<< vin.anProductie << endl << "Tarie: " << vin.tarie << endl;
 		return out;
+	}
+
+	bool operator==(const Vin& vin) {
+		if (string(this->soi) != string(vin.soi)) return false;
+		if (this->marca != vin.marca) return false;
+		if (this->anProductie != vin.anProductie) return false;
+		if (this->tarie != vin.tarie) return false;
+
+		return true;
 	}
 
 };
@@ -406,7 +396,7 @@ private:
 	const int capacitateMaxima;
 	int nrVinuri;
 	Vin** vinuri;
-	int* cantitateVin;
+	int* cantitatiVin;
 	static int nrCrame;
 
 	static char* validareDenumire(const char* denumire) {
@@ -444,13 +434,12 @@ private:
 		return rezultat;
 	}
 
-	int cantitateTotala() {
-		int sum = 0;
+	int vinExista(const Vin& vin) {
 		for (int i = 0; i < this->nrVinuri; i++) {
-			sum += this->cantitateVin[i];
+			if (*(this->vinuri[i]) == vin) return i;
 		}
 
-		return sum;
+		return -1;
 	}
 
 public:
@@ -459,65 +448,153 @@ public:
 		this->denumire = validareDenumire(nullptr);
 		this->nrVinuri = 0;
 		this->vinuri = nullptr;
-		this->cantitateVin = nullptr;
+		this->cantitatiVin = nullptr;
 	}
 
 	Crama(const char* denumire, int capacitateMaxima) :id(++nrCrame), capacitateMaxima(validareCapacitate(capacitateMaxima)) {
 		this->denumire = validareDenumire(denumire);
 		this->nrVinuri = 0;
 		this->vinuri = nullptr;
-		this->cantitateVin = nullptr;
+		this->cantitatiVin = nullptr;
 	}
 
-	Crama(const char* denumire, int capacitateMaxima, int nrVinuri, Vin** vinuri, int* cantitateVin) :id(++nrCrame), capacitateMaxima(validareCapacitate(capacitateMaxima)) {
+	Crama(const char* denumire, int capacitateMaxima, int nrVinuri, Vin** vinuri, int* cantitatiVin) :id(++nrCrame), capacitateMaxima(validareCapacitate(capacitateMaxima)) {
 		this->denumire = validareDenumire(denumire);
 		this->nrVinuri = validareNrVinuri(nrVinuri);
 		if (nrVinuri > 0) {
-			this->cantitateVin = validareCantVin(this->nrVinuri, cantitateVin);
+			this->cantitatiVin = validareCantVin(this->nrVinuri, cantitatiVin);
 			if (this->cantitateTotala() > this->capacitateMaxima) {
-				delete[] this->cantitateVin;
+				delete[] this->cantitatiVin;
 				throw ("Crama nu poate depozita mai mult vin decat capacitatea maxima");
 			}
 				
 			this->vinuri = new Vin*[this->nrVinuri];
 			for (int i = 0; i < this->nrVinuri; i++) {
-				this->vinuri[i] = vinuri[i];
+				this->vinuri[i] = new Vin(*(vinuri[i]));
 			}
 		}
 		else
 		{
-			this->cantitateVin = nullptr;
+			this->cantitatiVin = nullptr;
 			this->vinuri = nullptr;
 		}
 		
 	}
 
 	~Crama() {
-		delete[] this->denumire;
+		if (this->denumire != nullptr) delete[] this->denumire;
+		if (this->vinuri != nullptr) {
+			for (int i = 0; i < this->nrVinuri; i++) {
+				if (this->vinuri[i] != nullptr) delete this->vinuri[i];
+			}
+			delete[] this->vinuri;
+		}
+		
+		if (this->cantitatiVin != nullptr) delete[] this->cantitatiVin;
+	}
+	
+
+	int getId() {
+		return id;
+	}
+
+	char* getDenumire() {
+		if (this->denumire == nullptr) return nullptr;
+		char* copie = new char[strlen(this->denumire) + 1];
+		
+		strcpy_s(copie, strlen(this->denumire) + 1, this->denumire);
+		
+		return copie;
+	}
+
+	void setDenumire(const char* denumire) {
+		if (this->denumire != nullptr) delete[] this->denumire;
+		this->denumire = validareDenumire(denumire);
+	}
+
+	int getCapacitateMaxima() {
+		return this->capacitateMaxima;
+	}
+
+	int getNrVinuri() {
+		return this->nrVinuri;
+	}
+
+	Vin** getVinuri() {
+		if (this->nrVinuri == 0 || this->vinuri == nullptr) return nullptr;
+		Vin** copie = new Vin*[this->nrVinuri];
+		for (int i = 0; i < this->nrVinuri; i++) {
+			copie[i] = new Vin(*(this->vinuri[i]));
+		}
+
+		return copie;
+	}
+
+	int* getCanTitatiVin() {
+		int* copie = new int[this->nrVinuri];
+		for (int i = 0; i < this->nrVinuri; i++) {
+			copie[i] = this->cantitatiVin[i];
+		}
+	}
+
+	bool operator+(const Vin& vin) {
+		if (this->cantitateTotala() == this->capacitateMaxima) return false;
+		int index = this->vinExista(vin);
+		if (index >= 0) {
+			this->cantitatiVin[index]++;
+			return true;
+		}
+
+		Vin** rezVin = new Vin * [this->nrVinuri + 1];
+		int* rezCant = new int[this->nrVinuri + 1];
+
+		for (int i = 0; i < this->nrVinuri; i++) {
+			rezVin[i] = this->vinuri[i];
+			rezCant[i] = this->cantitatiVin[i];
+		}
+
 		delete[] this->vinuri;
-		delete[] this->cantitateVin;
+		delete[] this->cantitatiVin;
+
+		this->nrVinuri++;
+		rezVin[this->nrVinuri - 1] = new Vin(vin);
+		rezCant[this->nrVinuri - 1] = 1;
+
+		this->vinuri = rezVin;
+		this->cantitatiVin = rezCant;
+
+		return true;
 	}
 
 	friend ostream& operator<<(ostream& out, const Crama& crama) {
 		out << endl << "Id: " << crama.id << endl << "Denumire: " << crama.denumire << endl << "Capacitate Maxima: " << crama.capacitateMaxima
 			<< endl << "Tipuri vin: " << crama.nrVinuri;
 		if (crama.nrVinuri > 0) {
-			out << endl << "Vinuri si cantitati: [" << crama.cantitateVin[0] << " X " << *(crama.vinuri[0]);
+			out << endl << "Vinuri si cantitati: " << endl << "..........................." <<
+				endl << crama.cantitatiVin[0] << " X " << *(crama.vinuri[0]);
 			for (int i = 1; i < crama.nrVinuri; i++) {
-				out << endl << crama.cantitateVin[i] << " X " << *(crama.vinuri[i]);
+				out << endl << crama.cantitatiVin[i] << " X " << *(crama.vinuri[i]);
 			}
 
 			
-			out << "]" << endl;
+			out << "..........................." << endl;
 		}
 
 		return out;
 	}
 
+	int cantitateTotala() {
+		int sum = 0;
+		for (int i = 0; i < this->nrVinuri; i++) {
+			sum += this->cantitatiVin[i];
+		}
+
+		return sum;
+	}
+
 };
 
 int VitaDeVie::nrViteDeVie = 0;
-int Vin::nrVinuri = 0;
 int Crama::nrCrame = 0;
 
 void main() {
@@ -583,7 +660,7 @@ void main() {
 	Vin** vinuri = new Vin*[3] {&vin1, & vin2, & vin3};
 	int* cantitati = new int[3] {5, 6, 7};
 	try {
-		crama3 = new Crama("Crama2", 100, 3, vinuri, cantitati);
+		crama3 = new Crama("Crama2", 20, 3, vinuri, cantitati);
 	}
 	catch (const string e) {
 		cout << endl << e;
@@ -593,6 +670,13 @@ void main() {
 	delete[] cantitati;
 
 	cout << crama1 << crama2 << *crama3;
+
+	Vin vin4("Soi3", "Marca3", 1998, 12);
+
+	cout << endl << (*crama3 + vin3 ? "Vin adaugat" : "Capacitate maxima atinsa");
+	cout << endl << (*crama3 + vin4 ? "Vin adaugat" : "Capacitate maxima atinsa");
+	cout << endl << (*crama3 + vin4 ? "Vin adaugat" : "Capacitate maxima atinsa");
+	cout << *crama3;
 
 	if (crama3 != nullptr) delete crama3;
 }
