@@ -583,6 +583,34 @@ public:
 		return out;
 	}
 
+	int operator[](const Vin& vin) {
+		int index = vinExista(vin);
+
+		if (index == -1) return index;
+
+		return this->cantitatiVin[index];
+	}
+
+	Vin* operator[](const int index) {
+		if (index < 0 || index >= this->nrVinuri) return nullptr;
+		return this->vinuri[index];
+	}
+
+	void operator()(const Vin& vin, const int cantitate) {
+		if (this->capacitateMaxima < this->cantitateTotala() + cantitate) throw "Cantitatea de vin nu poate fi adaugata: Capacitate maxima depasita";
+		int index = vinExista(vin);
+		if (index == -1) {
+			if (cantitate < 0) return throw "Cantitatea nu poate fi scoasa: Vinul nu exista";
+			*this + vin;
+			this->cantitatiVin[this->nrVinuri - 1] = cantitate;
+		}
+		else {
+			if (this->cantitatiVin[index] + cantitate < 0) throw "Cantiatea nu poate fi scoasa: Cantitate insuficienta de vin in crama";
+			this->cantitatiVin[index] += cantitate;
+		}
+
+	}
+
 	int cantitateTotala() {
 		int sum = 0;
 		for (int i = 0; i < this->nrVinuri; i++) {
@@ -679,4 +707,55 @@ void main() {
 	cout << *crama3;
 
 	if (crama3 != nullptr) delete crama3;
+
+	Crama crama4("Crama3", 100);
+	try {
+		crama4(vin2, 30);
+		crama4(vin3, 40);
+		crama4(vin4, 25);
+	}
+	catch (const char* e) {
+		cout << endl << e;
+	}
+
+	try {
+		crama4(vin2, 30);
+		crama4(vin3, 40);
+		crama4(vin4, 25);
+	}
+	catch (const char* e) {
+		cout << endl << e;
+	}
+
+	cout << endl << crama4;
+
+	try {
+		crama4(vin3, 50);
+	}
+	catch (const char* e) {
+		cout << endl << e;
+	}
+
+	try {
+		crama4(vin4, -30);
+	}
+	catch (const char* e) {
+		cout << endl << e;
+	}
+
+	try {
+		crama4(vin3, -5);
+	}
+	catch (const char* e) {
+		cout << endl << e;
+	}
+
+	try {
+		crama4(vin1, -10);
+	}
+	catch (const char* e) {
+		cout << endl << e;
+	}
+
+	cout << endl << crama4;
 }
