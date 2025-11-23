@@ -86,6 +86,28 @@ public:
 		else this->dimSuprafeteCultivate = validareDim(nrSuprafete, dimSuprafeteCultivate);
 	}
 
+	VitaDeVie(const VitaDeVie& vita) :id(++nrViteDeVie) {
+		this->specie = validareSpecie(vita.specie);
+		this->varsta = validareVarsta(vita.varsta);
+		this->productieAnuala = validareProdAnuala(vita.productieAnuala);
+		this->nrSuprafete = validareNrSup(vita.nrSuprafete);
+		if (this->nrSuprafete == 0) this->dimSuprafeteCultivate = nullptr;
+		else this->dimSuprafeteCultivate = validareDim(nrSuprafete, dimSuprafeteCultivate);
+	}
+
+	VitaDeVie& operator=(const VitaDeVie& vita) {
+		if (this->specie != nullptr) delete[] this->specie;
+		this->specie = validareSpecie(vita.specie);
+		this->varsta = validareVarsta(vita.varsta);
+		this->productieAnuala = validareProdAnuala(vita.productieAnuala);
+		this->nrSuprafete = validareNrSup(vita.nrSuprafete);
+		if (this->dimSuprafeteCultivate != nullptr) delete[] this->dimSuprafeteCultivate;
+		if (this->nrSuprafete == 0) this->dimSuprafeteCultivate = nullptr;
+		else this->dimSuprafeteCultivate = validareDim(nrSuprafete, dimSuprafeteCultivate);
+
+		return *this;
+	}
+
 	~VitaDeVie() {
 		if (this->specie != nullptr) delete[] this->specie;
 		if (this->dimSuprafeteCultivate != nullptr) delete[] this->dimSuprafeteCultivate;
@@ -257,6 +279,82 @@ public:
 		return nrViteDeVie;
 	}
 
+	bool operator==(const VitaDeVie& vita) {
+		return string(this->specie) == string(vita.specie);
+	}
+
+	bool operator!=(const VitaDeVie& vita) {
+		if (*this == vita) return false;
+		return true;
+	}
+
+	bool operator<(const VitaDeVie& vita) {
+		return this->productieAnuala < vita.productieAnuala;
+	}
+
+	bool operator<=(const VitaDeVie& vita) {
+		return this->productieAnuala <= vita.productieAnuala;
+	}
+
+	bool operator>(const VitaDeVie& vita) {
+		return this->productieAnuala > vita.productieAnuala;
+	}
+
+	bool operator>=(const VitaDeVie& vita) {
+		return this->productieAnuala >= vita.productieAnuala;
+	}
+
+	double& operator[](int index) {
+		if (index >= 0 && index < this->nrSuprafete) return this->dimSuprafeteCultivate[index];
+	}
+
+	void operator+=(double x) {
+		this->productieAnuala += x;
+	}
+
+	void operator-=(double x) {
+		this->productieAnuala -= x;
+	}
+
+	VitaDeVie operator+ (double x) {
+		VitaDeVie copie = *this;
+		copie.productieAnuala += x;
+
+		return copie;
+	}
+
+	friend VitaDeVie operator+(double x, const VitaDeVie& vita) {
+		VitaDeVie copie = vita;
+		copie.productieAnuala += x;
+
+		return copie;
+	}
+
+	VitaDeVie operator-(double x) {
+		VitaDeVie copie = *this;
+		copie.productieAnuala -= x;
+
+		return copie;
+	}
+
+	friend VitaDeVie operator-(double x, const VitaDeVie& vita) {
+		VitaDeVie copie = vita;
+		copie.productieAnuala -= x;
+
+		return copie;
+	}
+
+	/*
+	const int id;
+	char* specie;
+	int varsta;
+	double productieAnuala;
+	int nrSuprafete;
+	double* dimSuprafeteCultivate;
+	*/
+
+	
+
 };
 
 class Vin {
@@ -386,6 +484,11 @@ public:
 		return true;
 	}
 
+	bool operator!=(const Vin& vin) {
+		if (*this == vin) return false;
+		return true;
+	}
+
 };
 
 
@@ -479,6 +582,55 @@ public:
 			this->vinuri = nullptr;
 		}
 		
+	}
+
+	Crama(const Crama& crama) :id(++nrCrame), capacitateMaxima(validareCapacitate(crama.capacitateMaxima)) {
+		this->denumire = validareDenumire(crama.denumire);
+		this->nrVinuri = validareNrVinuri(crama.nrVinuri);
+		if (this->nrVinuri > 0) {
+			this->cantitatiVin = validareCantVin(this->nrVinuri, crama.cantitatiVin);
+			if (this->cantitateTotala() > this->capacitateMaxima) {
+				delete[] this->cantitatiVin;
+				throw ("Crama nu poate depozita mai mult vin decat capacitatea maxima");
+			}
+
+			this->vinuri = new Vin*[this->nrVinuri];
+			for (int i = 0; i < this->nrVinuri; i++) {
+				this->vinuri[i] = new Vin(*(crama.vinuri[i]));
+			}
+		}
+		else
+		{
+			this->cantitatiVin = nullptr;
+			this->vinuri = nullptr;
+		}
+	}
+
+	Crama& operator=(const Crama& crama) {
+		if (this->denumire != nullptr) delete[] this->denumire;
+		this->denumire = validareDenumire(crama.denumire);
+		this->nrVinuri = validareNrVinuri(crama.nrVinuri);
+		if (this->cantitatiVin != nullptr) delete[] this->cantitatiVin;
+		if (this->vinuri != nullptr) delete[] this->vinuri;
+		if (this->nrVinuri > 0) {
+			this->cantitatiVin = validareCantVin(this->nrVinuri, crama.cantitatiVin);
+			if (this->cantitateTotala() > this->capacitateMaxima) {
+				delete[] this->cantitatiVin;
+				throw ("Crama nu poate depozita mai mult vin decat capacitatea maxima");
+			}
+
+			this->vinuri = new Vin * [this->nrVinuri];
+			for (int i = 0; i < this->nrVinuri; i++) {
+				this->vinuri[i] = new Vin(*(crama.vinuri[i]));
+			}
+		}
+		else
+		{
+			this->cantitatiVin = nullptr;
+			this->vinuri = nullptr;
+		}
+
+		return *this;
 	}
 
 	~Crama() {
