@@ -343,18 +343,6 @@ public:
 
 		return copie;
 	}
-
-	/*
-	const int id;
-	char* specie;
-	int varsta;
-	double productieAnuala;
-	int nrSuprafete;
-	double* dimSuprafeteCultivate;
-	*/
-
-	
-
 };
 
 class Vin {
@@ -490,6 +478,99 @@ public:
 	}
 
 };
+
+enum TipVin {NESPECIFICAT=0,SEC=1, DEMISEC=2, DEMIDULCE=3, DULCE=4};
+
+class VinRosu : public Vin {
+private:
+	TipVin tip;
+	float pret;
+
+	float validarePret(float pret) {
+		return pret < 0 ? 0 : pret;
+	}
+
+	const char* tipVin() {
+		switch (this->tip) {
+		case 1:
+			return "Sec";
+			break;
+		case 2:
+			return "Demisec";
+			break;
+		case 3:
+			return "Demidulce";
+			break;
+		case 4:
+			return "Dulce";
+			break;
+		default:
+			return "Nespecificat";
+
+		}
+	}
+
+public:
+	
+	VinRosu() : Vin() {
+		this->tip = NESPECIFICAT;
+		this->pret = 0;
+	}
+
+	VinRosu(const char* soi, string marca, int anProductie) : Vin(soi, marca, anProductie) {
+		this->tip = NESPECIFICAT;
+		this->pret = 0;
+	}
+
+	VinRosu(const char* soi, string marca, int anProductie, float tarie, TipVin tip, float pret) : Vin(soi, marca, anProductie, tarie) {
+		this->tip = tip;
+		this->pret = validarePret(pret);
+	}
+
+	VinRosu(const VinRosu& vin) : Vin(vin) {
+		this->tip = vin.tip;
+		this->pret = validarePret(pret);
+	}
+	 
+	VinRosu& operator=(const VinRosu& vin) {
+		Vin::operator=(vin);
+		this->tip = vin.tip;
+		this->pret = validarePret(pret);
+
+		return *this;
+	}
+
+	TipVin getTip() {
+		return this->tip;
+	}
+
+	void setTip(TipVin tip) {
+		this->tip = tip;
+	}
+
+	float getPret() {
+		return this->pret;
+	}
+
+	void setPret(float pret) {
+		this->pret = validarePret(pret);
+	}
+
+	friend ostream& operator<<(ostream& out, VinRosu& vin) {
+		out << endl << "Soi: " << vin.getSoi() << endl << "Marca: " << vin.getMarca() << endl << "An productie: "
+			<< vin.getAnProductie() << endl << "Tarie: " << vin.getTarie() << endl;
+		out << "Tip vin: " << vin.tipVin() << endl << "Pret: " << vin.pret;
+		return out;
+	}
+ 
+};
+
+/*
+	char* soi;
+	string marca;
+	int anProductie;
+	const float tarie;
+*/
 
 
 class Crama {
@@ -910,4 +991,10 @@ void main() {
 	}
 
 	cout << endl << crama4;
+
+	VinRosu vin;
+	cout << endl << vin;
+
+	VinRosu altVinRosu("Vin rosu", "Marca de vin", 1991, 12.3, DEMISEC, 75.45);
+	cout << endl << altVinRosu;
 }
