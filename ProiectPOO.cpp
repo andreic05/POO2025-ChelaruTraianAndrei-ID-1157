@@ -1,4 +1,5 @@
 #include<iostream>
+#include<fstream>
 
 using namespace std;
 
@@ -476,6 +477,27 @@ public:
 		if (*this == vin) return false;
 		return true;
 	}
+
+	friend fstream& operator<<(fstream& outf, Vin& vin) {
+		outf << vin.soi << endl << vin.marca << endl << vin.anProductie << endl << vin.tarie << endl ;
+
+		return outf;
+	}
+
+	friend void operator>>(fstream& inf, Vin& vin) {
+		inf >> vin.soi;
+		inf >> vin.marca;
+		inf >> vin.anProductie;
+		float tarie; //tarie e const, nu poate fi modificat in vin
+		inf >> tarie;
+	}
+
+	/*
+	char* soi;
+	string marca;
+	int anProductie;
+	const float tarie;
+*/
 
 };
 
@@ -997,4 +1019,17 @@ void main() {
 
 	VinRosu altVinRosu("Vin rosu", "Marca de vin", 1991, 12.3, DEMISEC, 75.45);
 	cout << endl << altVinRosu;
+
+
+	fstream fileStream("Vin.txt", ios::out);
+	fileStream << vin1;
+	fileStream.close();
+
+	Vin vinCopie;
+	fstream inputFStream("Vin.txt", ios::in);
+	inputFStream >> vinCopie;
+	inputFStream.close();
+
+
+	cout << vinCopie;
 }
