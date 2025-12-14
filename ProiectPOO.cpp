@@ -1,5 +1,7 @@
 #include<iostream>
 #include<fstream>
+#include<vector>
+#include<algorithm>
 
 using namespace std;
 
@@ -492,6 +494,10 @@ public:
 		inf >> tarie;
 	}
 
+	virtual string caracteristicaDerivata() {
+		return "Clasa Vin de baza";
+	}
+
 	/*
 	char* soi;
 	string marca;
@@ -584,15 +590,14 @@ public:
 		out << "Tip vin: " << vin.tipVin() << endl << "Pret: " << vin.pret;
 		return out;
 	}
+
+	string caracteristicaDerivata() override {
+		return "Vin Rosu";
+	}
  
 };
 
-/*
-	char* soi;
-	string marca;
-	int anProductie;
-	const float tarie;
-*/
+
 
 
 class Crama {
@@ -673,8 +678,8 @@ public:
 				delete[] this->cantitatiVin;
 				throw ("Crama nu poate depozita mai mult vin decat capacitatea maxima");
 			}
-				
-			this->vinuri = new Vin*[this->nrVinuri];
+
+			this->vinuri = new Vin * [this->nrVinuri];
 			for (int i = 0; i < this->nrVinuri; i++) {
 				this->vinuri[i] = new Vin(*(vinuri[i]));
 			}
@@ -684,7 +689,7 @@ public:
 			this->cantitatiVin = nullptr;
 			this->vinuri = nullptr;
 		}
-		
+
 	}
 
 	Crama(const Crama& crama) :id(++nrCrame), capacitateMaxima(validareCapacitate(crama.capacitateMaxima)) {
@@ -697,7 +702,7 @@ public:
 				throw ("Crama nu poate depozita mai mult vin decat capacitatea maxima");
 			}
 
-			this->vinuri = new Vin*[this->nrVinuri];
+			this->vinuri = new Vin * [this->nrVinuri];
 			for (int i = 0; i < this->nrVinuri; i++) {
 				this->vinuri[i] = new Vin(*(crama.vinuri[i]));
 			}
@@ -744,10 +749,10 @@ public:
 			}
 			delete[] this->vinuri;
 		}
-		
+
 		if (this->cantitatiVin != nullptr) delete[] this->cantitatiVin;
 	}
-	
+
 
 	int getId() {
 		return id;
@@ -756,9 +761,9 @@ public:
 	char* getDenumire() {
 		if (this->denumire == nullptr) return nullptr;
 		char* copie = new char[strlen(this->denumire) + 1];
-		
+
 		strcpy_s(copie, strlen(this->denumire) + 1, this->denumire);
-		
+
 		return copie;
 	}
 
@@ -777,7 +782,7 @@ public:
 
 	Vin** getVinuri() {
 		if (this->nrVinuri == 0 || this->vinuri == nullptr) return nullptr;
-		Vin** copie = new Vin*[this->nrVinuri];
+		Vin** copie = new Vin * [this->nrVinuri];
 		for (int i = 0; i < this->nrVinuri; i++) {
 			copie[i] = new Vin(*(this->vinuri[i]));
 		}
@@ -785,7 +790,7 @@ public:
 		return copie;
 	}
 
-	int* getCanTitatiVin() {
+	int* getCantitatiVin() {
 		int* copie = new int[this->nrVinuri];
 		for (int i = 0; i < this->nrVinuri; i++) {
 			copie[i] = this->cantitatiVin[i];
@@ -831,7 +836,7 @@ public:
 				out << endl << crama.cantitatiVin[i] << " X " << *(crama.vinuri[i]);
 			}
 
-			
+
 			out << "..........................." << endl;
 		}
 
@@ -873,6 +878,14 @@ public:
 		}
 
 		return sum;
+	}
+
+	bool operator<(Crama& alta) {
+		return this->cantitateTotala() < alta.cantitateTotala();
+	}
+
+	static bool metodaSortare(Crama* crama1, Crama* crama2) {
+		return *crama1 < *crama2;
 	}
 
 };
@@ -961,7 +974,7 @@ void main() {
 	cout << endl << (*crama3 + vin4 ? "Vin adaugat" : "Capacitate maxima atinsa");
 	cout << *crama3;
 
-	if (crama3 != nullptr) delete crama3;
+
 
 	Crama crama4("Crama3", 100);
 	try {
@@ -1032,4 +1045,28 @@ void main() {
 
 
 	cout << vinCopie;
+
+	vector<Crama*> vectorCrame;
+	vectorCrame.push_back(&crama1);
+	vectorCrame.push_back(&crama2);
+	vectorCrame.push_back(crama3);
+	vectorCrame.push_back(&crama4);
+
+	cout << endl << "Sortare crame" << endl;
+
+
+	sort(vectorCrame.begin(), vectorCrame.end(), Crama::metodaSortare);
+	
+	vector<Crama*>::iterator it = vectorCrame.begin();
+	while (it != vectorCrame.end()) {
+		cout << endl << **it << endl;
+		it++;
+	}
+
+
+
+
+
+	if (crama3 != nullptr) delete crama3;
+
 }
